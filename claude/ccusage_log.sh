@@ -1,17 +1,8 @@
 #!/usr/bin/env bash
-# Creator:      pven, supported by Claude
-# Date:         2026-05-23
-# Version:      v1.0
-# Description:  Fetches Claude API usage data and appends JSON log lines for Loki/Grafana
-#
-# Dependencies:
-#   - jq       (apt install jq)
-#   - curl     (apt install curl)
-#   - ccusage  (npm install -g ccusage)
-#
-# Usage:
-#   Copy to /usr/local/sbin/ccusage_log and add to cron:
-#   */5 * * * * /usr/local/sbin/ccusage_log >> /dev/null 2>&1
+# Creator: pven, supported by Claude
+# Date:    2026-05-23
+# Version: v1.0
+# Description: Fetches Claude API usage data and appends JSON log lines for Loki/Grafana
 
 # --- Configuration -----------------------------------------------------------
 LOGFILE="/var/log/ccusage.log"
@@ -40,7 +31,7 @@ fi
 BLOK=$(echo "$USAGE"         | jq '(.five_hour.utilization   // 0) | round')
 WEEK=$(echo "$USAGE"         | jq '(.seven_day.utilization   // 0) | round')
 CREDITS_PCT=$(echo "$USAGE"  | jq '(.extra_usage.utilization // 0) * 100 | round / 100')
-CREDITS_USED=$(echo "$USAGE" | jq '(.extra_usage.used_credits  // 0) / 100')
+CREDITS_USED=$(echo "$USAGE" | jq '(.extra_usage.used_credits // 0) / 100')
 CREDITS_MAX=$(echo "$USAGE"  | jq '(.extra_usage.monthly_limit // 0) / 100')
 
 REMAINING=$(ccusage blocks --json 2>/dev/null | jq '
@@ -50,7 +41,8 @@ REMAINING=$(ccusage blocks --json 2>/dev/null | jq '
     else 0
     end' 2>/dev/null || echo 0)
 
-printf '{"blok_pct":%s,"week_pct":%s,"credits_pct":%s,"credits_used":%s,"credits_max":%s,"blok_remaining_hours":%s}\n' \
+printf '{"timestamp":"%s","blok_pct":%s,"week_pct":%s,"credits_pct":%s,"credits_used":%s,"credits_max":%s,"blok_remaining_hours":%s}\n' \
+    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
     "$BLOK" "$WEEK" "$CREDITS_PCT" "$CREDITS_USED" "$CREDITS_MAX" "$REMAINING" \
     >> "$LOGFILE"
 
