@@ -8,6 +8,7 @@ Each folder contains the scripts and a README with usage instructions.
 - [Linux](linux/README.md) – Scripts for Linux environments  
 - [Home Assistant](home-assistant/README.md) – Scripts for Home Assistant automations  
 - [Windows](windows/README.md) – Scripts for Windows systems  
+- [Claude](claude/README.md) – Scripts related to Claude AI
 
 ---
 
